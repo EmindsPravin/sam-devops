@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --accent1: #22c55e;
+      --accent2: #3b82f6;
+      --accent3: #f59e0b;
+      --accent4: #ec4899;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #020617, #0f172a);
+      color: #e5e7eb;
+    }
+
+    header {
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    header span {
+      color: var(--accent2);
+    }
+
+    .container {
+      padding: 24px 32px 48px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #020617, var(--card));
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .value {
+      font-size: 36px;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .green { color: var(--accent1); }
+    .blue { color: var(--accent2); }
+    .orange { color: var(--accent3); }
+    .pink { color: var(--accent4); }
+
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      background: var(--accent2);
+      color: #020617;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🚀 <span>Test</span> Dashboard</h1>
+    <div id="time"></div>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+      <div class="card">
+        <h2>Visitors</h2>
+        <div class="value green" id="visitors">1,245</div>
+        <button onclick="randomize('visitors')">Refresh</button>
+      </div>
+
+      <div class="card">
+        <h2>CPU Usage</h2>
+        <div class="value blue" id="cpu">42%</div>
+        <button onclick="randomize('cpu', '%')">Refresh</button>
+      </div>
+
+      <div class="card">
+        <h2>Memory</h2>
+        <div class="value orange" id="memory">68%</div>
+        <button onclick="randomize('memory', '%')">Refresh</button>
+      </div>
+
+      <div class="card">
+        <h2>Errors</h2>
+        <div class="value pink" id="errors">3</div>
+        <button onclick="randomize('errors')">Refresh</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      Simple colorful dashboard • Perfect for GitHub Pages testing
+    </div>
+  </div>
+
+  <script>
+    function randomize(id, suffix = '') {
+      const value = Math.floor(Math.random() * 100) + 1;
+      document.getElementById(id).innerText = value + suffix;
+    }
+
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('time').innerText = now.toLocaleString();
+    }
+
+    setInterval(updateTime, 1000);
+    updateTime();
+  </script>
+</body>
+</html>
