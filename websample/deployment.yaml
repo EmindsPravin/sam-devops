@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-webapp
+  labels:
+    app: sample-webapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-webapp
+  template:
+    metadata:
+      labels:
+        app: sample-webapp
+    spec:
+      containers:
+        - name: sample-webapp
+          image: sample-webapp:latest   # will be built in Minikube docker env
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-webapp-service
+spec:
+  selector:
+    app: sample-webapp
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
