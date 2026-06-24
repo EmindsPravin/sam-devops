@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: sample-webapp
-          image: sample-webapp:latest   # will be built in Minikube docker env
+          image: RRR/rrr:ttt   # will be built in Minikube docker env
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
