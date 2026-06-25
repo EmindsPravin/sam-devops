@@ -9,11 +9,11 @@ retry(count:2){
         git branch: 'main', credentialsId: 'EMPra_git', url: 'https://github.com/EmindsPravin/jenkins-sam.git'
         }
     }
-//    stage('clone devops'){
-//        dir('devops'){
-//        git branch: 'main', credentialsId: 'EMPra_git', url: 'https://github.com/EmindsPravin/sam-devops.git'
-//        }
-//    }
+    stage('clone devops'){
+        dir('devops'){
+        git branch: 'main', credentialsId: 'EMPra_git', url: 'https://github.com/EmindsPravin/sam-devops.git'
+        }
+    }
 //     stage("copy git-codeshelf env"){
 
 //         sh "cp /home/eminds/jenkins/workspace/codeshelf/stage/em-git-codeshelf/devops/dockerfiles/em-git-codeshelf/Dockerfile /home/eminds/jenkins/workspace/codeshelf/stage/em-git-codeshelf/git-codeshelf/Dockerfile"
