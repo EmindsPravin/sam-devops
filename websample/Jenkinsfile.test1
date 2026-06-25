@@ -1,0 +1,153 @@
+node(){
+    stage('Clean'){
+        sh "rm -rf $WORKSPACE/*"
+    }
+
+retry(count:2){
+    stage('clone source'){
+        dir('websample'){
+        git branch: 'main', credentialsId: 'EMPra_git', url: 'https://github.com/EmindsPravin/jenkins-sam.git'
+        }
+    }
+    stage('clone devops'){
+        dir('devops'){
+        git branch: 'main', credentialsId: 'EMPra_git', url: 'https://github.com/EmindsPravin/sam-devops.git'
+        }
+    }
+//     stage("copy git-codeshelf env"){
+
+//         sh "cp /home/eminds/jenkins/workspace/codeshelf/stage/em-git-codeshelf/devops/dockerfiles/em-git-codeshelf/Dockerfile /home/eminds/jenkins/workspace/codeshelf/stage/em-git-codeshelf/git-codeshelf/Dockerfile"
+
+//         sh "cp /home/eminds/jenkins/workspace/codeshelf/stage/em-git-codeshelf/devops/kube-yml/codeshelf.yaml /home/eminds/jenkins/workspace/codeshelf/stage/em-git-codeshelf/codeshelf.yaml"
+
+//     }
+}
+
+
+    stage("Docker Build and Push"){
+        def previousbuild = currentBuild.previousSuccessfulBuild
+        def REGISTRY = "mrstester"        
+        def REPO = "websample" 
+        def JOB_NAME = "test-ppl"
+
+
+	def old_tag = "${JOB_NAME}-jen-v1.${previousbuild.number}"
+	def new_tag = "${JOB_NAME}-jen-dev1.${currentBuild.number}"
+
+        if (previousbuild != null) {
+             echo "Previous Successful Build Number: ${previousbuild.number}"
+             echo "Last Worked Image: ${REGISTRY}/${REPO}:${old_tag}"
+        } else {
+             echo "No previous successful build found."
+        }
+     
+        
+        def IMAGE = "${REGISTRY}/${REPO}:${new_tag }"
+        echo "Current Image: ${IMAGE}"
+
+        sh "sed -i    's/RRR/${REGISTRY}/g' /var/lib/jenkins/workspace/test-ppl/devops/websample/deployment.yaml"
+
+        sh "sed -i    's/rrr/${REPO}/g' /var/lib/jenkins/workspace/test-ppl/devops/websample/deployment.yaml"
+
+        sh "sed -i    's/ttt/${new_tag}/g' /var/lib/jenkins/workspace/test-ppl/devops/websample/deployment.yaml"
+
+        sh "docker build -t ${IMAGE} /var/lib/jenkins/workspace/test-ppl/websample/"
+        sh "docker push ${IMAGE}"
+    }
+
+    stage('Kubectl apply'){
+        withCredentials([file(credentialsId: 'k8s-local-M59', variable: 'k8s')]){
+        sh 'kubectl --kubeconfig $k8s apply -f /var/lib/jenkins/workspace/test-ppl/devops/websample/deployment.yaml '
+        }
+     }
+    
+//     stage('pod validation') {
+//     steps {
+//         sh '''
+//         echo "Deploying application..."
+//         cd metadata
+
+//         NAMESPACE=efs-$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo main)
+//         LABEL="app=bi-metadata-service"
+//         KUBECONFIG_PATH=config
+
+//         echo "Waiting up to 240 seconds for pod readiness..."
+
+//         EXTRA_WAIT=0
+//         POD_NAME=""
+
+//         for i in {1..30}; do
+
+//           POD_NAME=$(kubectl get pods -n $NAMESPACE -l "$LABEL" \
+//           --kubeconfig=$KUBECONFIG_PATH \
+//           -o jsonpath="{.items[0].metadata.name}" 2>/dev/null)
+
+//           if [ -z "$POD_NAME" ]; then
+//             echo "Pod not created yet..."
+//             sleep 10
+//             continue
+//           fi
+
+//           READY=$(kubectl get pod $POD_NAME -n $NAMESPACE \
+//           --kubeconfig=$KUBECONFIG_PATH \
+//           -o jsonpath="{.status.containerStatuses[0].ready}" 2>/dev/null)
+
+//           PHASE=$(kubectl get pod $POD_NAME -n $NAMESPACE \
+//           --kubeconfig=$KUBECONFIG_PATH \
+//           -o jsonpath="{.status.phase}")
+
+//           REASON=$(kubectl get pod $POD_NAME -n $NAMESPACE \
+//           --kubeconfig=$KUBECONFIG_PATH \
+//           -o jsonpath="{.status.containerStatuses[0].state.waiting.reason}" 2>/dev/null)
+
+//           echo "Pod: $POD_NAME | Phase: $PHASE | Ready: $READY | Reason: $REASON"
+
+//           if echo "$REASON" | grep -Eq "CrashLoopBackOff|Error|RunContainerError|ImagePullBackOff"; then
+//             echo "Pod failed with reason: $REASON"
+//             kubectl describe pod $POD_NAME -n $NAMESPACE --kubeconfig=$KUBECONFIG_PATH
+//             exit 1
+//           fi
+
+//           if [ "$PHASE" = "Running" ] && [ "$READY" = "true" ]; then
+//             echo "Pod is healthy and running"
+//             exit 0
+//           fi
+
+//           if [ "$REASON" = "ContainerCreating" ]; then
+//             EXTRA_WAIT=1
+//           fi
+
+//           sleep 8
+//         done
+
+//         if [ "$EXTRA_WAIT" -eq 1 ]; then
+//           echo "Container was still creating. Waiting extra 240 seconds..."
+//           sleep 240
+
+//           READY=$(kubectl get pod $POD_NAME -n $NAMESPACE \
+//           --kubeconfig=$KUBECONFIG_PATH \
+//           -o jsonpath="{.status.containerStatuses[0].ready}" 2>/dev/null)
+
+//           REASON=$(kubectl get pod $POD_NAME -n $NAMESPACE \
+//           --kubeconfig=$KUBECONFIG_PATH \
+//           -o jsonpath="{.status.containerStatuses[0].state.waiting.reason}" 2>/dev/null)
+
+//           echo "Final Check | Ready: $READY | Reason: $REASON"
+
+//           if [ "$READY" = "true" ]; then
+//             echo "Pod became healthy after extra wait"
+//             exit 0
+//           else
+//             echo "Pod did not become healthy"
+//             kubectl describe pod $POD_NAME -n $NAMESPACE --kubeconfig=$KUBECONFIG_PATH
+//             exit 1
+//           fi
+//         fi
+
+//         echo "Pod did not reach healthy state within expected time"
+//         exit 1
+//         '''
+//     }
+// }
+    
+  }
