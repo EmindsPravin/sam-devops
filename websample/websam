@@ -1,5 +1,6 @@
 node(){
     stage('Clean'){
+		sh "echo $WORKSPACE"
         sh "rm -rf $WORKSPACE/*"
     }
 
