@@ -51,7 +51,7 @@ retry(count:2){
 
         sh "sed -i    's/ttt/${new_tag}/g' /var/lib/jenkins/workspace/websam-pipe1/devops/websample/deployment.yaml"
 
-        sh "docker build -t ${IMAGE} /var/lib/jenkins/workspace/test1/websample/"
+        sh "docker build -t ${IMAGE} /var/lib/jenkins/workspace/websam-pipe1/"
         sh "docker push ${IMAGE}"
     }
 
